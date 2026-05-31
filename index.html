@@ -148,7 +148,31 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA9PVOIOgPUH6n032V3k-I4RpibUBZBujw",
+  authDomain: "fmh-mishabilidades.firebaseapp.com",
+  projectId: "fmh-mishabilidades",
+  storageBucket: "fmh-mishabilidades.firebasestorage.app",
+  messagingSenderId: "124208084513",
+  appId: "1:124208084513:web:fff3ca5ff599ff4f48d560"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function saveFirebase(){
+  try{await setDoc(doc(db,'fmh_academica','data'),JSON.parse(JSON.stringify(DATA)));}catch(e){console.log('FB save:',e);}
+}
+async function loadFirebase(){
+  try{const s=await getDoc(doc(db,'fmh_academica','data'));if(s.exists())window.DATA=s.data();}catch(e){console.log('FB load:',e);}
+}
+
+window._fbSave = saveFirebase;
+
 const DIAS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
 
 // ─── HORARIOS BASE ────────────────────────────────────────────────────────────
@@ -392,7 +416,10 @@ let DATA = JSON.parse(localStorage.getItem('fmh_acad2')||'null') || {
   ],
   grados:['BABYLAND','TODDLERS','KINDER 3','KINDER 4','TRANSITION','FIRST','SECOND','THIRD','FOURTH','FIFTH'],
 };
-function save(){localStorage.setItem('fmh_acad2',JSON.stringify(DATA));}
+function save(){
+  localStorage.setItem('fmh_acad2',JSON.stringify(DATA));
+  if(window._fbSave) window._fbSave();
+}
 
 let currentUser=null, currentPage='dashboard';
 
