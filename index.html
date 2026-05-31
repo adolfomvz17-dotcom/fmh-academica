@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FMH — Gestión Académica</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
+:root{--pink:#E91E8C;--pink3:#FCE4EC;--blue:#1A237E;--green:#2E7D32;--red:#C62828;--yellow:#F9A825;--border:#e0e0e0}
+body{background:#f5f5f5;color:#333}
+.hidden{display:none!important}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FCE4EC,#E91E8C22)}
+.login-box{background:#fff;border-radius:20px;padding:2.5rem;width:100%;max-width:400px;box-shadow:0 8px 32px #E91E8C22;text-align:center}
+.login-logo{font-size:52px;margin-bottom:8px}
+.login-title{color:var(--pink);font-size:22px;font-weight:700;margin-bottom:2px}
+.login-sub{color:#888;font-size:11px;margin-bottom:24px;line-height:1.5}
+.login-box input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;margin-bottom:10px;outline:none}
+.login-box input:focus{border-color:var(--pink)}
+.btn-login{width:100%;padding:12px;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+#app{display:flex;min-height:100vh}
+.sidebar{width:230px;background:linear-gradient(180deg,#E91E8C,#c2185b);color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:10px}
+.sidebar-logo-icon{width:42px;height:42px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sidebar-logo-text{font-size:12px;font-weight:700;line-height:1.4}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-section{padding:8px 20px 4px;font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13px;font-weight:500;transition:background 0.15s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,0.15)}
+.nav-item.active{background:rgba(255,255,255,0.25);border-left-color:#fff}
+.nav-item .ico{font-size:17px;width:22px;text-align:center}
+.sidebar-user{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.2);font-size:12px}
+.sidebar-user .uname{font-weight:600;margin-bottom:2px}
+.sidebar-user .urole{opacity:0.75;font-size:11px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:17px;font-weight:700;color:var(--blue)}
+.topbar-right{display:flex;align-items:center;gap:12px;font-size:12px;color:#666}
+.btn-salir{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;color:#666}
+.content{flex:1;overflow-y:auto;padding:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:14px;padding:14px;text-align:center;border:1px solid var(--border)}
+.stat-card .num{font-size:28px;font-weight:700;color:var(--pink)}
+.stat-card .lbl{font-size:10px;color:#888;margin-top:3px;text-transform:uppercase;letter-spacing:0.5px}
+.stat-card.blue .num{color:var(--blue)}
+.stat-card.green .num{color:var(--green)}
+.stat-card.red .num{color:var(--red)}
+.stat-card.yellow .num{color:var(--yellow)}
+.card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.card-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--pink3)}
+.card-title{font-size:13px;font-weight:700;color:var(--blue)}
+.card-body{padding:16px}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f8f8;padding:9px 12px;text-align:left;font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+td{padding:9px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-pink{background:var(--pink3);color:var(--pink)}
+.badge-green{background:#E8F5E9;color:var(--green)}
+.badge-red{background:#FFEBEE;color:var(--red)}
+.badge-yellow{background:#FFFDE7;color:var(--yellow)}
+.badge-blue{background:#E3F2FD;color:var(--blue)}
+.badge-gray{background:#f5f5f5;color:#666}
+.badge-purple{background:#EDE7F6;color:#4527A0}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-outline{background:none;border:1.5px solid var(--pink);color:var(--pink)}
+.btn-red{background:#FFEBEE;color:var(--red);border:none}
+.btn-blue{background:#E3F2FD;color:var(--blue);border:none}
+.btn-green{background:#E8F5E9;color:var(--green);border:none}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn-group{display:flex;gap:6px;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;font-weight:600;color:#555}
+.form-group input,.form-group select,.form-group textarea{padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;outline:none;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--pink)}
+.form-full{grid-column:1/-1}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:1rem}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-size:15px;font-weight:700;color:var(--blue)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#aaa}
+.horario-grid{display:grid;grid-template-columns:100px repeat(5,1fr);gap:2px;font-size:11px}
+.horario-header{background:var(--pink);color:#fff;padding:6px;text-align:center;font-weight:600;border-radius:4px}
+.horario-hora{background:#f5f5f5;padding:6px;text-align:center;font-weight:600;color:#555;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.horario-celda{background:#fff;border:1px solid #eee;padding:5px;border-radius:4px;min-height:44px;font-size:10px;line-height:1.3}
+.horario-celda.descanso{background:#FFF9C4}
+.horario-celda.lunch{background:#E8F5E9}
+.horario-celda.actual{background:#FCE4EC;border:2px solid var(--pink);font-weight:600}
+.horario-celda.vacio{background:#fafafa;color:#ccc}
+.clase-actual-banner{background:linear-gradient(135deg,var(--pink),#c2185b);color:#fff;border-radius:16px;padding:20px;margin-bottom:20px}
+.clase-actual-label{font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.clase-actual-nombre{font-size:18px;font-weight:700;margin-bottom:4px}
+.clase-actual-info{font-size:13px;opacity:0.9}
+.clase-actual-btn{background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.5);color:#fff;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit}
+.alert{padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.alert-red{background:#FFEBEE;color:var(--red);border-left:4px solid var(--red)}
+.alert-yellow{background:#FFFDE7;color:#795548;border-left:4px solid var(--yellow)}
+.alert-green{background:#E8F5E9;color:var(--green);border-left:4px solid var(--green)}
+.alert-blue{background:#E3F2FD;color:var(--blue);border-left:4px solid var(--blue)}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:500;cursor:pointer;color:#888}
+.tab-btn.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;background:#f5f5f5;border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;user-select:none}
+.chip.selected{background:var(--pink3);border-color:var(--pink);color:var(--pink);font-weight:600}
+.flexible-banner{background:#E3F2FD;border:1px solid #90CAF9;border-radius:10px;padding:10px 14px;font-size:12px;color:var(--blue);margin-bottom:12px}
+@media(max-width:768px){.sidebar{width:56px}.sidebar-logo-text,.nav-item span,.nav-section,.sidebar-user .uname,.sidebar-user .urole{display:none}.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🌸</div>
+    <div class="login-title">Mis Habilidades</div>
+    <div class="login-sub">Sistema de Gestión Académica<br>Fundación de Rehabilitación Integral — Ibagué</div>
+    <input id="loginUser" placeholder="Usuario"/>
+    <input id="loginPass" type="password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <p id="loginErr" style="color:var(--pink);font-size:12px;margin-bottom:8px;display:none">Usuario o contraseña incorrectos</p>
+    <button class="btn-login" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌸</div>
+      <div class="sidebar-logo-text">Fundación<br>Mis Habilidades</div>
+    </div>
+    <nav class="sidebar-nav" id="sideNav"></nav>
+    <div class="sidebar-user">
+      <div class="uname" id="sidebarName"></div>
+      <div class="urole" id="sidebarRole"></div>
+      <button class="btn-salir" style="margin-top:8px;width:100%;font-family:inherit" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <span id="topbarDate"></span>
+        <span id="topbarTime" style="font-weight:600;color:var(--pink)"></span>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+
+<script>
+const DIAS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+
+// ─── HORARIOS BASE ────────────────────────────────────────────────────────────
+const R=(ini,fin,tipo,l,ma,mi,j,v)=>({ini,fin,tipo,clases:{lunes:l,martes:ma,miercoles:mi,jueves:j,viernes:v}});
+const ENTRADA=(l,ma,mi,j,v)=>R('06:45','07:00','rutina',l,ma,mi,j,v);
+const DESCANSO=R('09:15','09:45','descanso','DESCANSO','DESCANSO','DESCANSO','DESCANSO','DESCANSO');
+const LUNCH=R('12:30','13:15','lunch','LUNCH','LUNCH','LUNCH','LUNCH','LUNCH');
+const SLEEP=R('13:15','14:00','descanso','TO SLEEP','TO SLEEP','TO SLEEP','TO SLEEP','TO SLEEP');
+const HIGIENE=R('14:00','14:15','rutina','Higiene personal','Higiene personal','Higiene personal','Higiene personal','Higiene personal');
+const DESCANSO2=R('15:15','15:45','descanso','DESCANSO','DESCANSO','DESCANSO','DESCANSO','DESCANSO');
+
+const HORARIOS = {
+  FIRST:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO MAT. (GEOMETRIA)','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO LENGUAJE (CALIGRAFIA)','PROYECTO CIEN. NATURALES (PROTEC. AMB Y ECOLOGIA)','PROYECTO CIEN. SOCIALES (HISTORIA)'),
+    R('07:45','08:30','clase','PROYECTO MAT. (ARITMETICA)','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO MAT. (ARITMETICA)','PROYECTO EDU. FISICA TAE-KODO','PROYECTO ART. Y CULTURAL (MÚSICA)'),
+    R('08:30','09:15','clase','PROYECTO CIEN. SOCIALES (CON. POLITICA Y DEMOC.)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO EDU. FINANCIERA','PROYECTO CIEN. NATURALES (CONSERVACION REC. NATURALES)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO ART. Y CULTURAL (DANZA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO ART. Y CULTURAL (MÚSICA)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO MAT. (ESTADISTICA)'),
+    R('10:30','11:15','clase','PROYECTO EDU. RELIGIOSA','PROYECTO LENGUAJE (INGLES)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO LENGUAJE (PORTUGUES)','PROYECTO MAT. (ARITMETICA)'),
+    R('11:15','12:00','clase','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO EDU. (AJEDREZ)','PROYECTO DE ETICA Y VALORES'),
+    R('12:00','12:30','clase','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO EDU. FISICA NATACION','PROYECTO LENGUAJE (ESCRITORES CREATIVOS)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO LENGUAJE (COMUNICADORES EXPERTOS-VIDEO)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC','MATHEMATIC','ENSAMBLE (Transición-2)','MATHEMATIC','MATHEMATIC'),
+    DESCANSO2,
+    R('15:45','16:30','clase','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING'),
+    R('16:30','17:00','clase','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS'),
+  ],
+  SECOND:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO MAT. (GEOMETRIA)','PROYECTO LENGUAJE (INGLES)','PROYECTO LENGUAJE (CALIGRAFIA)','PROYECTO CIEN. NATURALES (PROTEC. AMB Y ECOLOGIA)','PROYECTO MAT. (ESTADISTICA)'),
+    R('07:45','08:30','clase','PROYECTO MAT. (ARITMETICA)','TAEKWONDO','PROYECTO ART. Y CULTURAL (MÚSICA)','PROYECTO EDU. FINANCIERA','PROYECTO MAT. (ARITMETICA)'),
+    R('08:30','09:15','clase','PROYECTO CIEN. SOCIALES (CON. POLITICA Y DEMOC.)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO LENGUAJE (ESCRITORES CREATIVOS)','PROYECTO LENGUAJE (PORTUGUES)','PROYECTO DE ETICA Y VALORES'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO EDU. RELIGIOSA','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO EDU. (AJEDREZ)','PROYECTO ART. Y CULTURAL (MÚSICA)'),
+    R('10:30','11:15','clase','PROYECTO ART. Y CULTURAL (DANZA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. NATURALES (CONSERVACION REC. NATURALES)'),
+    R('11:15','12:00','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO CIEN. SOCIALES (HISTORIA)'),
+    R('12:00','12:30','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO MAT. (ARITMETICA)','NATACIÓN','PROYECTO LENGUAJE (COMUNICADORES EXPERTOS-VIDEO)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC','MATHEMATIC','ENSAMBLE (Transición-2)','MATHEMATIC','MATHEMATIC'),
+    DESCANSO2,
+    R('15:45','16:30','clase','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING'),
+    R('16:30','17:00','clase','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS'),
+  ],
+  THIRD:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (ESCRITORES CREATIVOS)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO CIEN. NATURALES (PEQ. CIENTIFICOS)'),
+    R('07:45','08:30','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (CALIGRAFIA)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO LENGUAJE (COMUNICADORES EXPERTOS-VIDEO)'),
+    R('08:30','09:15','clase','PROYECTO CIEN. SOCIALES (CON. POLITICA Y DEMOC.)','PROYECTO EDU. FISICA TAE-KODO','MÚSICA','PROYECTO CIEN. NATURALES (PROTEC. AMB Y ECOLOGIA)','PROYECTO EDU. FINANCIERA'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO MAT. (GEOMETRIA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO EDU. FISICA NATACION','PROYECTO DE ETICA Y VALORES'),
+    R('10:30','11:15','clase','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO MAT. (ESTADISTICA)','PROYECTO MAT. (ARITMETICA)'),
+    R('11:15','12:00','clase','PROYECTO ART. Y CULTURAL (DANZA)','PROYECTO LENGUAJE (INGLES)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. NATURALES (CONSERVACION REC. NATURALES)'),
+    R('12:00','12:30','clase','PROYECTO EDU. RELIGIOSA','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO LENGUAJE (PORTUGUES)','PROYECTO EDU. (AJEDREZ)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC','MATHEMATIC','MATHEMATIC','MATHEMATIC','ENSAMBLE (3,4 Y 5)'),
+    DESCANSO2,
+    R('15:45','16:30','clase','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING'),
+    R('16:30','17:00','clase','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS'),
+  ],
+  FOURTH:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO MAT. (GEOMETRIA)','PROYECTO EDU. (TAE KODO)','MÚSICA','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO MAT. (ESTADISTICA)'),
+    R('07:45','08:30','clase','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO MAT. (ARITMETICA)'),
+    R('08:30','09:15','clase','PROYECTO CIEN. SOCIALES (CON. POLITICA Y DEMOC.)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. NATURALES (PROTEC. AMB Y ECOLOGIA)','PROYECTO CIEN. NATURALES (PEQ. CIENTIFICOS)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (ESCRITORES CREATIVOS)','PROYECTO EDU. FINANCIERA','PROYECTO EDU. FISICA NATACION'),
+    R('10:30','11:15','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (CALIGRAFIA)','PROYECTO LENGUAJE (PORTUGUES)','PROYECTO LENGUAJE (COMUNICADORES EXPERTOS-VIDEO)'),
+    R('11:15','12:00','clase','PROYECTO EDU. RELIGIOSA','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO EDU. (AJEDREZ)','PROYECTO CIEN. NATURALES (CONSERVACION REC. NATURALES)'),
+    R('12:00','12:30','clase','PROYECTO ART. Y CULTURAL (DANZA)','PROYECTO LENGUAJE (INGLES)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO DE ETICA Y VALORES'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC','MATHEMATIC','MATHEMATIC','MATHEMATIC','ENSAMBLE (3,4 Y 5)'),
+    DESCANSO2,
+    R('15:45','16:30','clase','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING'),
+    R('16:30','17:00','clase','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS'),
+  ],
+  FIFTH:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO MAT. (GEOMETRIA)','PROYECTO EDU. (TAE KODO)','MÚSICA','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO MAT. (ESTADISTICA)'),
+    R('07:45','08:30','clase','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. SOCIALES (HISTORIA)','PROYECTO MAT. (ARITMETICA)'),
+    R('08:30','09:15','clase','PROYECTO CIEN. SOCIALES (CON. POLITICA Y DEMOC.)','PROYECTO CIEN. NATURALES (BIOLOGIA)','PROYECTO MAT. (ARITMETICA)','PROYECTO CIEN. NATURALES (PROTEC. AMB Y ECOLOGIA)','PROYECTO CIEN. NATURALES (PEQ. CIENTIFICOS)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (ESCRITORES CREATIVOS)','PROYECTO EDU. FINANCIERA','PROYECTO EDU. FISICA NATACION'),
+    R('10:30','11:15','clase','PROYECTO LENGUAJE (LITERATURA Y GRAMATICA)','PROYECTO TEC-INFORMATICA (MR. ELECTRONICO)','PROYECTO LENGUAJE (CALIGRAFIA)','PROYECTO LENGUAJE (PORTUGUES)','PROYECTO LENGUAJE (COMUNICADORES EXPERTOS-VIDEO)'),
+    R('11:15','12:00','clase','PROYECTO EDU. RELIGIOSA','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO EDU. (AJEDREZ)','PROYECTO CIEN. NATURALES (CONSERVACION REC. NATURALES)'),
+    R('12:00','12:30','clase','PROYECTO ART. Y CULTURAL (DANZA)','PROYECTO LENGUAJE (INGLES)','PROYECTO CIEN. SOCIALES (GEOGRAFIA)','PROYECTO ART. Y CULTURAL (PERIFERICO)','PROYECTO DE ETICA Y VALORES'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC','MATHEMATIC','MATHEMATIC','MATHEMATIC','ENSAMBLE (3,4 Y 5)'),
+    DESCANSO2,
+    R('15:45','16:30','clase','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING','HANDWRITING'),
+    R('16:30','17:00','clase','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS','ESCRITORES CREATIVOS'),
+  ],
+  TRANSITION:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO JUEGO COLECTIVO (Dim. Corporal)','PROYECTO COMPETENCIA PARA LA VIDA (Dim. Cognitiva)','PROYECTO DIMENSION DE ACTITUDES Y VALORES','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','PROYECTO PLASTICAS-ARTS (Dim. Estética)'),
+    R('07:45','08:30','clase','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO ESCRITURA (Dim. Cognitiva)','TAEKWONDO','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)'),
+    R('08:30','09:15','clase','PROYECTO EXPRESION DANZA (Dim. Corporal)','RONDAS-PLAN LECTOR INGLÉS (Dim. Cognitiva-Corporal)','PROYECTO CANTACUENTOS (Dim. Comunicativa)','NATACIÓN','PROYECTO LENGUAJE SILABICO (Dim. Comunicativa)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LA NATURALEZA (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO PRINCIPIOS DE FE (Dim. Ética)','PROYECTO PLAN LECTOR (Dim. Comunicativa)','EDUFISICA-GIMNASIA (Dim. Corporal)'),
+    R('10:30','11:15','clase','PROYECTO DE INGLES (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','MÚSICA','MI PAIS-INGLES (Dim. Cognitiva)','MÚSICA'),
+    R('11:15','12:00','clase','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO PLASTICAS-ARTS (Dim. Estética)','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO MATEMATICAS (Dim. Cognitiva)','ESCRITORES CREATIVOS (Lectura Narrativa)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)'),
+    DESCANSO2,
+    R('15:45','18:00','clase','Escritores Creativos - Salida Canto','Escritores Creativos - Lectura Narrativas','Escritores Creativos - Canticuentos','Escritores Creativos - Trabalenguas','Escritores Creativos - Lectura Narrativa'),
+  ],
+  'KINDER 3':[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO JUEGO COLECTIVO (Dim. Corporal)','PROYECTO COMPETENCIA PARA LA VIDA (Dim. Cognitiva)','PROYECTO DIMENSION DE ACTITUDES Y VALORES','TAEKWONDO','PROYECTO PLASTICAS-ARTS (Dim. Estética)'),
+    R('07:45','08:30','clase','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO LENGUAJE SILABICO (Dim. Comunicativa)','MÚSICA'),
+    R('08:30','09:15','clase','PROYECTO EXPRESION DANZA (Dim. Corporal)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO CANTACUENTOS (Dim. Comunicativa)','EDUFISICA-GIMNASIA (Dim. Corporal)','EDUFISICA-GIMNASIA (Dim. Corporal)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LA NATURALEZA (Dim. Cognitiva)','NATACION','PROYECTO PRINCIPIOS DE FE (Dim. Ética)','PROYECTO PLAN LECTOR (Dim. Comunicativa)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)'),
+    R('10:30','11:15','clase','PROYECTO DE INGLES (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','MI PAIS-INGLES (Dim. Cognitiva)','RONDAS-PLAN LECTOR INGLÉS (Dim. Cognitiva-Corporal)'),
+    R('11:15','12:00','clase','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO PLASTICAS-ARTS (Dim. Estética)','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO MATEMATICAS (Dim. Cognitiva)','ESCRITORES CREATIVOS (Lectura Narrativa)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)'),
+    DESCANSO2,
+    R('15:45','18:00','clase','Escritores Creativos - Salida Canto','Escritores Creativos - Lectura Narrativas','Escritores Creativos - Canticuentos','Escritores Creativos - Trabalenguas','Escritores Creativos - Lectura Narrativa'),
+  ],
+  'KINDER 4':[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO JUEGO COLECTIVO (Dim. Corporal)','PROYECTO COMPETENCIA PARA LA VIDA (Dim. Cognitiva)','PROYECTO DIMENSION DE ACTITUDES Y VALORES','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','PROYECTO PLASTICAS-ARTS (Dim. Estética)'),
+    R('07:45','08:30','clase','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','PROYECTO MATEMATICAS (Dim. Cognitiva)'),
+    R('08:30','09:15','clase','PROYECTO EXPRESION DANZA (Dim. Corporal)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO CANTACUENTOS (Dim. Comunicativa)','EDUFISICA-GIMNASIA (Dim. Corporal)','PROYECTO LENGUAJE SILABICO (Dim. Comunicativa)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LA NATURALEZA (Dim. Cognitiva)','TAEKWONDO','PROYECTO PRINCIPIOS DE FE (Dim. Ética)','NATACION','PROYECTO PLAN LECTOR (Dim. Comunicativa)'),
+    R('10:30','11:15','clase','PROYECTO DE INGLES (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','MI PAIS-INGLES (Dim. Cognitiva)','RONDAS-PLAN LECTOR INGLÉS (Dim. Cognitiva-Corporal)'),
+    R('11:15','12:00','clase','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO PLASTICAS-ARTS (Dim. Estética)','MÚSICA','PROYECTO MATEMATICAS (Dim. Cognitiva)','ESCRITORES CREATIVOS (Lectura Narrativa)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)'),
+    DESCANSO2,
+    R('15:45','18:00','clase','Escritores Creativos - Salida Canto','Escritores Creativos - Lectura Narrativas','Escritores Creativos - Canticuentos','Escritores Creativos - Trabalenguas','Escritores Creativos - Lectura Narrativa'),
+  ],
+  TODDLERS:[
+    ENTRADA('Entrada-rutinas CANCIÓN','Entrada-rutinas TEATRO','Entrada-rutinas CANCIÓN','Entrada-rutinas POEMA','Entrada-rutinas TRABALENGUAS'),
+    R('07:00','07:45','clase','PROYECTO JUEGO COLECTIVO (Dim. Corporal)','PROYECTO COMPETENCIA PARA LA VIDA (Dim. Cognitiva)','PROYECTO DIMENSION DE ACTITUDES Y VALORES','TAEKWONDO','PROYECTO PLASTICAS-ARTS (Dim. Estética)'),
+    R('07:45','08:30','clase','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO ESCRITURA (Dim. Cognitiva)','PROYECTO LENGUAJE SILABICO (Dim. Comunicativa)','MÚSICA'),
+    R('08:30','09:15','clase','PROYECTO EXPRESION DANZA (Dim. Corporal)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO CANTACUENTOS (Dim. Comunicativa)','EDUFISICA-GIMNASIA (Dim. Corporal)','EDUFISICA-GIMNASIA (Dim. Corporal)'),
+    DESCANSO,
+    R('09:45','10:30','clase','PROYECTO LA NATURALEZA (Dim. Cognitiva)','NATACION','PROYECTO PRINCIPIOS DE FE (Dim. Ética)','PROYECTO PLAN LECTOR (Dim. Comunicativa)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)'),
+    R('10:30','11:15','clase','PROYECTO DE INGLES (Dim. Cognitiva)','PROYECTO DE PENSAMIENTO (Dim. Cognitiva)','PROYECTO SOCIO EMOCIONAL (Dim. Actitudes y Valores)','MI PAIS-INGLES (Dim. Cognitiva)','RONDAS-PLAN LECTOR INGLÉS (Dim. Cognitiva-Corporal)'),
+    R('11:15','12:00','clase','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO PLASTICAS-ARTS (Dim. Estética)','PROYECTO MATEMATICAS (Dim. Cognitiva)','PROYECTO MATEMATICAS (Dim. Cognitiva)','ESCRITORES CREATIVOS (Lectura Narrativa)'),
+    LUNCH, SLEEP, HIGIENE,
+    R('14:15','15:15','clase','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)','MATHEMATIC (Dim. Cognitiva)'),
+    DESCANSO2,
+    R('15:45','18:00','clase','Escritores Creativos - Salida Canto','Escritores Creativos - Lectura Narrativas','Escritores Creativos - Canticuentos','Escritores Creativos - Trabalenguas','Escritores Creativos - Lectura Narrativa'),
+  ],
+  BABYLAND: null, // Se asigna después de definir TODDLERS
+};
+// BABYLAND usa el mismo horario que TODDLERS
+HORARIOS.BABYLAND = JSON.parse(JSON.stringify(HORARIOS.TODDLERS));
+
+// Horarios catedráticos (flexibles)
+const HORARIOS_CAT = {
+  musica:{
+    flexible:true,
+    nombre:'Música',
+    clases:{
+      lunes:[],
+      martes:[],
+      miercoles:[
+        {ini:'07:00',fin:'07:45',grado:'FOURTH Y FIFTH'},
+        {ini:'07:45',fin:'08:30',grado:'SECOND'},
+        {ini:'08:30',fin:'09:15',grado:'THIRD'},
+        {ini:'09:45',fin:'10:30',grado:'FIRST'},
+        {ini:'10:30',fin:'11:15',grado:'TRANSITION'},
+        {ini:'11:15',fin:'12:00',grado:'KINDER 4'},
+        {ini:'14:00',fin:'14:45',grado:'ENSAMBLE (TRANSITION-2)'},
+        {ini:'14:45',fin:'15:00',grado:'ENSAMBLE (TRANSITION-2)'},
+      ],
+      jueves:[],
+      viernes:[
+        {ini:'07:00',fin:'07:45',grado:'THIRD'},
+        {ini:'07:45',fin:'08:30',grado:'FIRST'},
+        {ini:'08:30',fin:'09:15',grado:'BABYLAND'},
+        {ini:'09:45',fin:'10:30',grado:'SECOND'},
+        {ini:'10:30',fin:'11:15',grado:'TRANSITION'},
+        {ini:'11:15',fin:'12:00',grado:'KINDER 3'},
+        {ini:'14:00',fin:'14:45',grado:'ENSAMBLE (3,4 Y 5)'},
+        {ini:'14:45',fin:'15:00',grado:'ENSAMBLE (3,4 Y 5)'},
+      ],
+    }
+  },
+  taekwondo:{
+    flexible:true,
+    nombre:'Taekwondo / Natación',
+    clases:{
+      lunes:[],
+      martes:[
+        {ini:'07:00',fin:'07:45',grado:'FOURTH Y FIFTH',area:'Taekwondo'},
+        {ini:'07:45',fin:'08:30',grado:'SECOND',area:'Taekwondo'},
+        {ini:'08:30',fin:'09:15',grado:'THIRD',area:'Taekwondo'},
+        {ini:'09:45',fin:'10:30',grado:'KINDER 4',area:'Taekwondo'},
+        {ini:'10:30',fin:'11:15',grado:'BABYLAND',area:'Natación'},
+        {ini:'11:15',fin:'12:00',grado:'FIRST',area:'Natación'},
+      ],
+      miercoles:[],
+      jueves:[
+        {ini:'07:00',fin:'07:45',grado:'BABYLAND',area:'Taekwondo'},
+        {ini:'07:45',fin:'08:30',grado:'FIRST',area:'Taekwondo'},
+        {ini:'08:30',fin:'09:15',grado:'TRANSITION',area:'Taekwondo'},
+        {ini:'09:45',fin:'10:30',grado:'TRANSITION',area:'Natación'},
+        {ini:'10:30',fin:'11:15',grado:'KINDER 4',area:'Natación'},
+        {ini:'11:15',fin:'12:00',grado:'SECOND',area:'Natación'},
+      ],
+      viernes:[],
+    }
+  },
+  adolfo_docente:{
+    flexible:true,
+    nombre:'Portugués / Ajedrez / Natación',
+    clases:{
+      lunes:[],martes:[],miercoles:[],
+      jueves:[
+        {ini:'08:30',fin:'09:15',grado:'SECOND',area:'Portugués'},
+        {ini:'09:45',fin:'10:30',grado:'SECOND',area:'Ajedrez'},
+        {ini:'10:30',fin:'11:15',grado:'VARIOS',area:'Portugués'},
+        {ini:'11:15',fin:'12:00',grado:'VARIOS',area:'Ajedrez'},
+      ],
+      viernes:[
+        {ini:'09:45',fin:'10:30',grado:'FOURTH Y FIFTH',area:'Natación'},
+      ],
+    }
+  }
+};
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+let DATA = JSON.parse(localStorage.getItem('fmh_acad2')||'null') || {
+  usuarios:[
+    {id:'u1',usuario:'admin',pass:'Admin2025',rol:'presidente',nombre:'Adolfo (Presidente)',grados:[],tipo:'fijo',activo:true},
+    {id:'u2',usuario:'coordinadora',pass:'Maritza2026',rol:'coordinadora',nombre:'Coordinadora',grados:[],tipo:'fijo',activo:true},
+    {id:'u3',usuario:'adolfo.docente',pass:'Adolfo2025',rol:'docente',nombre:'Adolfo - Portugués/Ajedrez/Natación',grados:['SECOND','THIRD','FOURTH','FIFTH'],tipo:'catedratico',catKey:'adolfo_docente',activo:true},
+    {id:'u4',usuario:'sami.musica',pass:'Profe2025',rol:'docente',nombre:'Sami Calixto - Música',grados:['FIRST','SECOND','THIRD','FOURTH','FIFTH','TRANSITION','KINDER 3','KINDER 4','BABYLAND'],tipo:'catedratico',catKey:'musica',activo:true},
+    {id:'u5',usuario:'brian.taekwondo',pass:'Profe2025',rol:'docente',nombre:'Brian Bonilla - Taekwondo/Natación',grados:['FIRST','SECOND','THIRD','FOURTH','FIFTH','TRANSITION','KINDER 4','BABYLAND'],tipo:'catedratico',catKey:'taekwondo',activo:true},
+  ],
+  registros:[],
+  periodos:[
+    {id:'p1',nombre:'Periodo 1',inicio:'2026-01-15',fin:'2026-03-28',activo:true},
+    {id:'p2',nombre:'Periodo 2',inicio:'2026-04-06',fin:'2026-06-19',activo:false},
+  ],
+  grados:['BABYLAND','TODDLERS','KINDER 3','KINDER 4','TRANSITION','FIRST','SECOND','THIRD','FOURTH','FIFTH'],
+};
+function save(){localStorage.setItem('fmh_acad2',JSON.stringify(DATA));}
+
+let currentUser=null, currentPage='dashboard';
+
+const isAdmin=()=>currentUser?.rol==='presidente';
+const isCoord=()=>currentUser?.rol==='coordinadora';
+const isDocente=()=>currentUser?.rol==='docente';
+const isAdminOrCoord=()=>['presidente','coordinadora'].includes(currentUser?.rol);
+const esCatedratico=()=>currentUser?.tipo==='catedratico';
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value.trim();
+  const found=DATA.usuarios.find(x=>x.usuario===u&&x.pass===p&&x.activo);
+  if(!found){document.getElementById('loginErr').style.display='block';return;}
+  document.getElementById('loginErr').style.display='none';
+  currentUser=found;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('sidebarName').textContent=found.nombre;
+  document.getElementById('sidebarRole').textContent={presidente:'Presidente',coordinadora:'Coordinadora',docente:found.tipo==='catedratico'?'Catedrático':'Docente'}[found.rol];
+  buildNav(); navigate('dashboard'); startClock();
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  clearInterval(window._clk);
+}
+
+function startClock(){
+  const tick=()=>{
+    const n=new Date();
+    document.getElementById('topbarDate').textContent=n.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+    document.getElementById('topbarTime').textContent=n.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  };
+  tick(); window._clk=setInterval(tick,30000);
+}
+
+function buildNav(){
+  const nav=document.getElementById('sideNav');
+  let items=[];
+  if(isAdmin()||isCoord()){
+    items=[
+      {section:'Principal'},{id:'dashboard',ico:'📊',label:'Dashboard'},{id:'alertas',ico:'🔔',label:'Alertas'},
+      {section:'Académico'},{id:'registros',ico:'📋',label:'Registros'},{id:'horarios',ico:'🕐',label:'Horarios'},
+    ];
+    if(isAdmin()) items.push(
+      {section:'Administración'},{id:'usuarios',ico:'👥',label:'Usuarios'},
+      {id:'grados',ico:'🏫',label:'Grados y Periodos'},{id:'reportes',ico:'📄',label:'Reportes'}
+    );
+    else items.push({id:'reportes',ico:'📄',label:'Reportes'});
+  } else {
+    items=[
+      {id:'dashboard',ico:'📊',label:'Mi Dashboard'},
+      {id:'registrar',ico:'✏️',label:'Registrar Clase'},
+      {id:'mis_registros',ico:'📋',label:'Mis Registros'},
+      {id:'horarios',ico:'🕐',label:'Mi Horario'},
+    ];
+  }
+  nav.innerHTML=items.map(i=>i.section
+    ?`<div class="nav-section">${i.section}</div>`
+    :`<div class="nav-item" id="nav_${i.id}" onclick="navigate('${i.id}')"><span class="ico">${i.ico}</span><span>${i.label}</span></div>`
+  ).join('');
+}
+
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('nav_'+page); if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',alertas:'Alertas',registros:'Registros de Actividades',horarios:'Horarios',usuarios:'Gestión de Usuarios',grados:'Grados y Periodos',reportes:'Reportes',registrar:'Registrar Clase',mis_registros:'Mis Registros'};
+  document.getElementById('pageTitle').textContent=titles[page]||page;
+  const c=document.getElementById('mainContent');
+  if(page==='dashboard') renderDashboard(c);
+  else if(page==='horarios') renderHorarios(c);
+  else if(page==='usuarios') renderUsuarios(c);
+  else if(page==='registrar') renderRegistrar(c);
+  else if(page==='mis_registros') renderMisRegistros(c);
+  else if(page==='registros') renderRegistrosAdmin(c);
+  else if(page==='alertas') renderAlertas(c);
+  else if(page==='grados') renderGrados(c);
+  else if(page==='reportes') renderReportes(c);
+}
+
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const todayDia=()=>DIAS[new Date().getDay()];
+
+function getClaseActual(grado, catKey){
+  const dia=todayDia();
+  if(!['lunes','martes','miercoles','jueves','viernes'].includes(dia)) return null;
+  const now=new Date(); const hm=now.getHours()*60+now.getMinutes();
+  if(catKey){
+    const cat=HORARIOS_CAT[catKey]; if(!cat) return null;
+    const clasesDia=cat.clases[dia]||[];
+    for(const h of clasesDia){
+      const [ih,im]=h.ini.split(':').map(Number);
+      const [fh,fm]=h.fin.split(':').map(Number);
+      if(hm>=ih*60+im&&hm<fh*60+fm) return {...h,nombre:`${h.area||cat.nombre} — ${h.grado}`,flexible:true};
+    }
+    return null;
+  }
+  const horario=HORARIOS[grado]; if(!horario) return null;
+  for(const h of horario){
+    const [ih,im]=h.ini.split(':').map(Number);
+    const [fh,fm]=h.fin.split(':').map(Number);
+    if(hm>=ih*60+im&&hm<fh*60+fm) return {...h,nombre:h.clases[dia]||'Sin clase'};
+  }
+  return null;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard(c){
+  if(isDocente()){renderDashboardDocente(c);return;}
+  const docentes=DATA.usuarios.filter(u=>u.rol==='docente'&&u.activo);
+  const totalReg=DATA.registros.filter(r=>r.fecha===todayStr()).length;
+  const pendientes=DATA.registros.filter(r=>r.estado==='pendiente').length;
+  const aprobados=DATA.registros.filter(r=>r.estado==='aprobado').length;
+  c.innerHTML=`
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num">${docentes.length}</div><div class="lbl">Docentes activos</div></div>
+    <div class="stat-card blue"><div class="num">${totalReg}</div><div class="lbl">Registros hoy</div></div>
+    <div class="stat-card yellow"><div class="num">${pendientes}</div><div class="lbl">Por revisar</div></div>
+    <div class="stat-card green"><div class="num">${aprobados}</div><div class="lbl">Aprobados</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">👩‍🏫 Cumplimiento Docentes — Hoy</span></div>
+    <table><tr><th>Docente</th><th>Tipo</th><th>Grados</th><th>Registros hoy</th><th>Estado</th></tr>
+    ${docentes.map(u=>{
+      const regs=DATA.registros.filter(r=>r.fecha===todayStr()&&r.docenteId===u.id);
+      return `<tr>
+        <td><b>${u.nombre}</b></td>
+        <td><span class="badge ${u.tipo==='catedratico'?'badge-purple':'badge-blue'}">${u.tipo==='catedratico'?'Catedrático':'Titular'}</span></td>
+        <td style="font-size:11px">${u.grados.slice(0,3).map(g=>`<span class="badge badge-pink" style="margin:1px">${g}</span>`).join('')}${u.grados.length>3?`<span style="font-size:10px;color:#888"> +${u.grados.length-3}</span>`:''}</td>
+        <td><b>${regs.length}</b></td>
+        <td><span class="badge ${regs.length>0?'badge-green':'badge-red'}">${regs.length>0?'✅ Registró':'⚠️ Sin registro'}</span></td>
+      </tr>`;
+    }).join('')}
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Últimos registros</span><button class="btn btn-pink btn-sm" onclick="navigate('registros')">Ver todos</button></div>
+    <table><tr><th>Docente</th><th>Grado</th><th>Proyecto</th><th>Hora</th><th>Estado</th></tr>
+    ${DATA.registros.slice(-6).reverse().map(r=>{
+      const u=DATA.usuarios.find(x=>x.id===r.docenteId);
+      return `<tr>
+        <td style="font-size:12px">${u?.nombre||'—'}</td>
+        <td><span class="badge badge-pink">${r.grado}</span></td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${r.proyecto}</td>
+        <td>${r.hora}</td>
+        <td><span class="badge ${r.estado==='aprobado'?'badge-green':r.estado==='rechazado'?'badge-red':'badge-yellow'}">${r.estado}</span></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px">Sin registros aún</td></tr>'}
+    </table>
+  </div>`;
+}
+
+function renderDashboardDocente(c){
+  const misGrados=currentUser.grados||[];
+  const cat=esCatedratico()?currentUser.catKey:null;
+  const misRegsHoy=DATA.registros.filter(r=>r.fecha===todayStr()&&r.docenteId===currentUser.id);
+  const dia=todayDia();
+  let claseActualHTML='';
+
+  if(['lunes','martes','miercoles','jueves','viernes'].includes(dia)){
+    const grado=misGrados[0]||'';
+    const clase=getClaseActual(grado,cat);
+    if(clase){
+      const yaReg=DATA.registros.find(r=>r.fecha===todayStr()&&r.docenteId===currentUser.id&&r.proyecto===clase.nombre);
+      claseActualHTML=`<div class="clase-actual-banner">
+        <div class="clase-actual-label">🕐 Clase en curso ahora</div>
+        <div class="clase-actual-nombre">${clase.nombre}</div>
+        <div class="clase-actual-info">${clase.flexible?'Catedrático flexible':grado} · ${clase.ini} - ${clase.fin}</div>
+        ${yaReg
+          ?`<div style="margin-top:10px;background:rgba(255,255,255,0.2);border-radius:8px;padding:8px 14px;font-size:13px">✅ Ya registraste esta clase</div>`
+          :`<button class="clase-actual-btn" onclick="abrirRegistroRapido('${clase.flexible?(clase.grado||grado):grado}','${clase.nombre.replace(/'/g,"\\'")}')">✏️ Registrar esta clase ahora</button>`
+        }
+      </div>`;
+    } else if(esCatedratico()){
+      claseActualHTML=`<div class="flexible-banner">📋 <b>Horario flexible:</b> No hay clase programada ahora según tu horario base. Puedes registrar manualmente desde "Registrar Clase".</div>`;
+    } else {
+      claseActualHTML=`<div class="alert alert-blue">🕐 No hay clase programada en este momento.</div>`;
+    }
+  } else {
+    claseActualHTML=`<div class="alert alert-yellow">📅 Hoy no hay clases programadas.</div>`;
+  }
+
+  c.innerHTML=`${claseActualHTML}
+  <div class="stats-grid">
+    <div class="stat-card blue"><div class="num">${misRegsHoy.length}</div><div class="lbl">Registros hoy</div></div>
+    <div class="stat-card"><div class="num">${DATA.registros.filter(r=>r.docenteId===currentUser.id).length}</div><div class="lbl">Total registros</div></div>
+    <div class="stat-card green"><div class="num">${DATA.registros.filter(r=>r.docenteId===currentUser.id&&r.estado==='aprobado').length}</div><div class="lbl">Aprobados</div></div>
+    <div class="stat-card yellow"><div class="num">${DATA.registros.filter(r=>r.docenteId===currentUser.id&&r.estado==='pendiente').length}</div><div class="lbl">Pendientes</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Mis registros recientes</span></div>
+    <table><tr><th>Fecha</th><th>Grado</th><th>Proyecto</th><th>Estado</th></tr>
+    ${DATA.registros.filter(r=>r.docenteId===currentUser.id).slice(-6).reverse().map(r=>`<tr>
+      <td>${r.fecha}</td>
+      <td><span class="badge badge-pink">${r.grado}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${r.proyecto}</td>
+      <td><span class="badge ${r.estado==='aprobado'?'badge-green':r.estado==='rechazado'?'badge-red':'badge-yellow'}">${r.estado}</span></td>
+    </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px">Sin registros aún</td></tr>'}
+    </table>
+  </div>`;
+}
+
+function abrirRegistroRapido(grado, proyecto){
+  window._regGrado=grado; window._regProyecto=proyecto;
+  navigate('registrar');
+}
+
+// ─── REGISTRAR ────────────────────────────────────────────────────────────────
+function renderRegistrar(c){
+  const misGrados=currentUser.grados||[];
+  const gradoSel=window._regGrado||misGrados[0]||'';
+  const proyectoSel=window._regProyecto||'';
+  const cat=esCatedratico()?currentUser.catKey:null;
+  const dia=todayDia();
+
+  // Obtener proyectos del horario
+  let proyectosDisponibles=[];
+  if(cat){
+    const catH=HORARIOS_CAT[cat];
+    if(catH){
+      const clasesDia=catH.clases[dia]||[];
+      proyectosDisponibles=clasesDia.map(h=>({
+        label:`${h.ini}-${h.fin}: ${h.area||catH.nombre} — ${h.grado}`,
+        value:`${h.area||catH.nombre} — ${h.grado}`
+      }));
+    }
+  } else {
+    const horario=HORARIOS[gradoSel]||[];
+    proyectosDisponibles=horario.filter(h=>h.tipo==='clase'&&h.clases[dia]).map(h=>({
+      label:`${h.ini}-${h.fin}: ${h.clases[dia]}`,
+      value:h.clases[dia]
+    }));
+  }
+
+  c.innerHTML=`
+  ${esCatedratico()?`<div class="flexible-banner">📋 <b>Horario flexible:</b> Puedes seleccionar o escribir el proyecto/clase que corresponde. Si tu horario cambió, simplemente escríbelo manualmente.</div>`:''}
+  <div class="card">
+    <div class="card-header"><span class="card-title">✏️ Registrar Actividad de Clase</span></div>
+    <div class="card-body">
+      <div class="form-grid">
+        ${!cat?`<div class="form-group">
+          <label>Grado / Grupo</label>
+          <select id="rGrado" onchange="window._regGrado=this.value;window._regProyecto='';navigate('registrar')">
+            ${misGrados.map(g=>`<option value="${g}" ${g===gradoSel?'selected':''}>${g}</option>`).join('')}
+          </select>
+        </div>`:`<div class="form-group">
+          <label>Grado / Grupo</label>
+          <input id="rGrado" value="${gradoSel||''}" placeholder="Ej: SECOND, THIRD, FOURTH Y FIFTH..."/>
+        </div>`}
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="rFecha" value="${todayStr()}"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Proyecto *</label>
+          <input id="rProyecto" value="${proyectoSel}" placeholder="Ej: Proyecto 1, Proyecto Matemáticas, PROYECTO LENGUAJE..."/>
+          ${proyectosDisponibles.length>0?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+            ${proyectosDisponibles.map(p=>`<span onclick="document.getElementById('rProyecto').value='${p.value.replace(/'/g,"\\'")}'" style="background:var(--pink3);color:var(--pink);padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;font-weight:500">${p.label}</span>`).join('')}
+          </div>`:''}
+        </div>
+        <div class="form-group">
+          <label>Hora de registro</label>
+          <input type="time" id="rHora" value="${new Date().toTimeString().slice(0,5)}"/>
+        </div>
+        <div class="form-group">
+          <label>Área / Asignatura</label>
+          <input id="rArea" placeholder="Ej: Matemáticas, Lenguaje, Música..." value="${cat?HORARIOS_CAT[cat]?.nombre||'':''}"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Estándar *</label>
+          <input id="rEstandar" placeholder="Estándar trabajado en la clase"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Competencia *</label>
+          <input id="rCompetencia" placeholder="Competencia que se desarrolló"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Actividad realizada *</label>
+          <textarea id="rActividad" rows="3" placeholder="Describe detalladamente la actividad realizada..."></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label>Recursos utilizados</label>
+          <input id="rRecursos" placeholder="Ej: Fichas, tablero, material concreto, videos..."/>
+        </div>
+        <div class="form-group form-full">
+          <label>Observaciones del grupo</label>
+          <textarea id="rObservaciones" rows="2" placeholder="Comportamiento, participación, dificultades..."></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label>Estudiantes destacados</label>
+          <input id="rDestacados" placeholder="Nombres de estudiantes con buen desempeño"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Dificultades encontradas</label>
+          <textarea id="rDificultades" rows="2" placeholder="¿Hubo alguna dificultad? ¿Algún estudiante necesita apoyo?"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label>Novedades / Recomendaciones</label>
+          <textarea id="rNovedades" rows="2" placeholder="Novedades importantes o recomendaciones..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="navigate('dashboard')">Cancelar</button>
+        <button class="btn btn-pink" onclick="guardarRegistro()">💾 Guardar Registro</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function guardarRegistro(){
+  const gradoEl=document.getElementById('rGrado');
+  const grado=gradoEl.value.trim();
+  const proyecto=document.getElementById('rProyecto').value.trim();
+  const estandar=document.getElementById('rEstandar').value.trim();
+  const competencia=document.getElementById('rCompetencia').value.trim();
+  const actividad=document.getElementById('rActividad').value.trim();
+  if(!grado||!proyecto||!estandar||!competencia||!actividad){alert('Por favor completa los campos obligatorios (*)');return;}
+  const ahora=new Date();
+  const claseActual=esCatedratico()?null:getClaseActual(grado,null);
+  const esTardio=claseActual?claseActual.nombre!==proyecto:false;
+  DATA.registros.push({
+    id:'r'+Date.now(),
+    docenteId:currentUser.id,
+    docenteNombre:currentUser.nombre,
+    grado, proyecto,
+    area:document.getElementById('rArea').value,
+    fecha:document.getElementById('rFecha').value,
+    hora:document.getElementById('rHora').value,
+    estandar, competencia, actividad,
+    recursos:document.getElementById('rRecursos').value,
+    observaciones:document.getElementById('rObservaciones').value,
+    destacados:document.getElementById('rDestacados').value,
+    dificultades:document.getElementById('rDificultades').value,
+    novedades:document.getElementById('rNovedades').value,
+    estado:'pendiente',
+    registroTardio:esTardio,
+    esCatedratico:esCatedratico(),
+    creadoEn:ahora.toISOString(),
+  });
+  window._regGrado=null; window._regProyecto=null;
+  save(); alert('✅ Registro guardado correctamente');
+  navigate('mis_registros');
+}
+
+// ─── MIS REGISTROS ────────────────────────────────────────────────────────────
+function renderMisRegistros(c){
+  const regs=DATA.registros.filter(r=>r.docenteId===currentUser.id).reverse();
+  c.innerHTML=`
+  <div style="margin-bottom:12px;display:flex;justify-content:flex-end">
+    <button class="btn btn-pink" onclick="navigate('registrar')">+ Nuevo Registro</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Mis Registros (${regs.length})</span></div>
+    <table><tr><th>Fecha</th><th>Grado</th><th>Proyecto</th><th>Estándar</th><th>Estado</th><th></th></tr>
+    ${regs.length===0?'<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px">No tienes registros aún</td></tr>':''}
+    ${regs.map(r=>`<tr>
+      <td>${r.fecha}</td>
+      <td><span class="badge badge-pink">${r.grado}</span></td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${r.proyecto}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${r.estandar}</td>
+      <td><span class="badge ${r.estado==='aprobado'?'badge-green':r.estado==='rechazado'?'badge-red':'badge-yellow'}">${r.estado}</span>
+      ${r.registroTardio?'<span class="badge badge-yellow" style="margin-left:3px">tardío</span>':''}</td>
+      <td><button class="btn btn-blue btn-sm" onclick="verRegistro('${r.id}')">👁️</button></td>
+    </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+// ─── REGISTROS ADMIN ─────────────────────────────────────────────────────────
+function renderRegistrosAdmin(c){
+  const fd=window._filtroDoc||'todos';
+  const fe=window._filtroEst||'todos';
+  const ff=window._filtroFecha||'';
+  let regs=[...DATA.registros].reverse();
+  if(fd!=='todos') regs=regs.filter(r=>r.docenteId===fd);
+  if(fe!=='todos') regs=regs.filter(r=>r.estado===fe);
+  if(ff) regs=regs.filter(r=>r.fecha===ff);
+  const docentes=DATA.usuarios.filter(u=>u.rol==='docente');
+  c.innerHTML=`
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <select onchange="window._filtroDoc=this.value;navigate('registros')" style="padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px">
+      <option value="todos">Todos los docentes</option>
+      ${docentes.map(u=>`<option value="${u.id}" ${fd===u.id?'selected':''}>${u.nombre}</option>`).join('')}
+    </select>
+    <select onchange="window._filtroEst=this.value;navigate('registros')" style="padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px">
+      <option value="todos">Todos los estados</option>
+      <option value="pendiente" ${fe==='pendiente'?'selected':''}>Pendientes</option>
+      <option value="aprobado" ${fe==='aprobado'?'selected':''}>Aprobados</option>
+      <option value="rechazado" ${fe==='rechazado'?'selected':''}>Rechazados</option>
+    </select>
+    <input type="date" value="${ff}" onchange="window._filtroFecha=this.value;navigate('registros')" style="padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px"/>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">📋 Registros (${regs.length})</span></div>
+    <table><tr><th>Fecha</th><th>Docente</th><th>Grado</th><th>Proyecto</th><th>Estado</th><th>Acciones</th></tr>
+    ${regs.length===0?'<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px">Sin registros</td></tr>':''}
+    ${regs.map(r=>`<tr>
+      <td>${r.fecha}</td>
+      <td style="font-size:11px">${r.docenteNombre}</td>
+      <td><span class="badge badge-pink">${r.grado}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${r.proyecto}</td>
+      <td><span class="badge ${r.estado==='aprobado'?'badge-green':r.estado==='rechazado'?'badge-red':'badge-yellow'}">${r.estado}</span>
+      ${r.registroTardio?'<span class="badge badge-yellow" style="margin-left:2px">tardío</span>':''}
+      ${r.esCatedratico?'<span class="badge badge-purple" style="margin-left:2px">Cat.</span>':''}</td>
+      <td><div class="btn-group">
+        <button class="btn btn-blue btn-sm" onclick="verRegistro('${r.id}')">👁️</button>
+        ${r.estado==='pendiente'?`
+        <button class="btn btn-green btn-sm" onclick="cambiarEstado('${r.id}','aprobado')">✅</button>
+        <button class="btn btn-red btn-sm" onclick="cambiarEstado('${r.id}','rechazado')">❌</button>`:''}
+      </div></td>
+    </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+function cambiarEstado(id,estado){
+  const r=DATA.registros.find(x=>x.id===id);
+  if(r){r.estado=estado;save();navigate(isDocente()?'mis_registros':'registros');}
+}
+
+function verRegistro(id){
+  const r=DATA.registros.find(x=>x.id===id); if(!r) return;
+  const u=DATA.usuarios.find(x=>x.id===r.docenteId);
+  const html=`<div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">📋 Detalle del Registro</span><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+    <div style="display:grid;gap:10px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge badge-pink">${r.grado}</span>
+        <span class="badge ${r.estado==='aprobado'?'badge-green':r.estado==='rechazado'?'badge-red':'badge-yellow'}">${r.estado}</span>
+        ${r.registroTardio?'<span class="badge badge-yellow">Tardío</span>':''}
+        ${r.esCatedratico?'<span class="badge badge-purple">Catedrático</span>':''}
+      </div>
+      ${[
+        ['👩‍🏫 Docente',u?.nombre||'—'],
+        ['📅 Fecha y hora',`${r.fecha} — ${r.hora}`],
+        ['📚 Proyecto',r.proyecto],
+        ['🎯 Área',r.area||'—'],
+        ['📐 Estándar',r.estandar],
+        ['🏆 Competencia',r.competencia],
+        ['🏃 Actividad realizada',r.actividad],
+        ['🛠️ Recursos',r.recursos||'—'],
+        ['👥 Observaciones del grupo',r.observaciones||'—'],
+        ['⭐ Estudiantes destacados',r.destacados||'—'],
+        ['⚠️ Dificultades',r.dificultades||'—'],
+        ['📢 Novedades',r.novedades||'—'],
+      ].map(([k,v])=>`<div style="background:#f9f9f9;border-radius:8px;padding:10px">
+        <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:3px">${k}</div>
+        <div style="font-size:13px">${v}</div>
+      </div>`).join('')}
+    </div>
+    ${isAdminOrCoord()&&r.estado==='pendiente'?`
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-red" onclick="cambiarEstado('${r.id}','rechazado');this.closest('.modal-overlay').remove()">❌ Rechazar</button>
+      <button class="btn btn-green" onclick="cambiarEstado('${r.id}','aprobado');this.closest('.modal-overlay').remove()">✅ Aprobar</button>
+    </div>`:''}
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+// ─── HORARIOS ─────────────────────────────────────────────────────────────────
+function renderHorarios(c){
+  const cat=esCatedratico()?currentUser.catKey:null;
+  const misGrados=isDocente()?currentUser.grados:DATA.grados;
+  const gradoSel=window._horGrado||(cat?'__cat__':misGrados[0]||'FIRST');
+  const dias=['lunes','martes','miercoles','jueves','viernes'];
+  const diaActual=todayDia();
+
+  c.innerHTML=`
+  <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <label style="font-size:13px;font-weight:600">Ver horario:</label>
+    <select onchange="window._horGrado=this.value;navigate('horarios')" style="padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px">
+      ${cat?`<option value="__cat__" ${gradoSel==='__cat__'?'selected':''}>Mi horario catedrático</option>`:''}
+      ${misGrados.map(g=>`<option value="${g}" ${g===gradoSel?'selected':''}>${g}</option>`).join('')}
+    </select>
+  </div>`;
+
+  if(gradoSel==='__cat__'&&cat){
+    const catH=HORARIOS_CAT[cat];
+    c.innerHTML+=`
+    <div class="alert alert-blue">📋 <b>Horario flexible</b> — Este es tu horario base. Si hay cambios, puedes registrar manualmente.</div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🕐 Horario — ${catH?.nombre} (Catedrático)</span></div>
+      <div style="overflow-x:auto;padding:12px">
+        <div class="horario-grid">
+          <div class="horario-header">Hora</div>
+          ${dias.map(d=>`<div class="horario-header" style="${d===diaActual?'background:#c2185b':''}">${d.charAt(0).toUpperCase()+d.slice(1)}</div>`).join('')}
+          ${['06:45','07:00','07:45','08:30','09:15','09:45','10:30','11:15','12:00','14:00','14:45'].map(hora=>{
+            const fin={'06:45':'07:00','07:00':'07:45','07:45':'08:30','08:30':'09:15','09:15':'09:45','09:45':'10:30','10:30':'11:15','11:15':'12:00','12:00':'14:00','14:00':'14:45','14:45':'15:00'}[hora]||'';
+            return `<div class="horario-hora">${hora}<br>${fin}</div>
+            ${dias.map(d=>{
+              const cls=catH.clases[d]||[];
+              const found=cls.find(h=>h.ini===hora);
+              return `<div class="horario-celda ${found?'especial':'vacio'}">${found?`<b>${found.area||catH.nombre}</b><br>${found.grado}`:''}</div>`;
+            }).join('')}`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  } else {
+    const horario=HORARIOS[gradoSel]||[];
+    c.innerHTML+=`
+    <div class="card">
+      <div class="card-header"><span class="card-title">🕐 Horario — ${gradoSel}</span></div>
+      <div style="overflow-x:auto;padding:12px">
+        <div class="horario-grid">
+          <div class="horario-header">Hora</div>
+          ${dias.map(d=>`<div class="horario-header" style="${d===diaActual?'background:#c2185b':''}">${d.charAt(0).toUpperCase()+d.slice(1)}</div>`).join('')}
+          ${horario.map(h=>{
+            const claseActual2=getClaseActual(gradoSel,null);
+            return `<div class="horario-hora">${h.ini}<br>${h.fin}</div>
+            ${dias.map(d=>{
+              const esActual=claseActual2&&claseActual2.ini===h.ini&&d===diaActual;
+              const tipoClass=h.tipo==='descanso'?'descanso':h.tipo==='lunch'?'lunch':'';
+              return `<div class="horario-celda ${tipoClass} ${esActual?'actual':''}">${h.clases[d]||''}</div>`;
+            }).join('')}`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+}
+
+// ─── ALERTAS ──────────────────────────────────────────────────────────────────
+function renderAlertas(c){
+  const docentes=DATA.usuarios.filter(u=>u.rol==='docente'&&u.activo);
+  const sinReg=docentes.filter(u=>!DATA.registros.find(r=>r.fecha===todayStr()&&r.docenteId===u.id));
+  const pendientes=DATA.registros.filter(r=>r.estado==='pendiente');
+  const tardios=DATA.registros.filter(r=>r.registroTardio&&r.fecha===todayStr());
+  c.innerHTML=`
+  <div class="stats-grid">
+    <div class="stat-card red"><div class="num">${sinReg.length}</div><div class="lbl">Sin registro hoy</div></div>
+    <div class="stat-card yellow"><div class="num">${pendientes.length}</div><div class="lbl">Pendientes revisión</div></div>
+    <div class="stat-card yellow"><div class="num">${tardios.length}</div><div class="lbl">Registros tardíos</div></div>
+  </div>
+  ${sinReg.length>0?`
+  <div class="card">
+    <div class="card-header"><span class="card-title">🔴 Docentes sin registro hoy</span></div>
+    <table><tr><th>Docente</th><th>Tipo</th><th>Grados</th><th>Último registro</th></tr>
+    ${sinReg.map(u=>{
+      const ultimo=DATA.registros.filter(r=>r.docenteId===u.id).pop();
+      return `<tr>
+        <td><b>${u.nombre}</b></td>
+        <td><span class="badge ${u.tipo==='catedratico'?'badge-purple':'badge-blue'}">${u.tipo==='catedratico'?'Catedrático':'Titular'}</span></td>
+        <td style="font-size:11px">${u.grados.slice(0,4).map(g=>`<span class="badge badge-pink" style="margin:1px">${g}</span>`).join('')}</td>
+        <td style="font-size:12px">${ultimo?`${ultimo.fecha} — ${ultimo.hora}`:'Sin registros'}</td>
+      </tr>`;
+    }).join('')}
+    </table>
+  </div>`:`<div class="alert alert-green">✅ Todos los docentes han registrado hoy</div>`}
+  ${pendientes.length>0?`
+  <div class="card">
+    <div class="card-header"><span class="card-title">⏳ Pendientes de revisión (${pendientes.length})</span><button class="btn btn-pink btn-sm" onclick="navigate('registros')">Ver todos</button></div>
+    <table><tr><th>Docente</th><th>Grado</th><th>Proyecto</th><th>Fecha</th><th>Acciones</th></tr>
+    ${pendientes.slice(0,8).map(r=>`<tr>
+      <td style="font-size:12px">${r.docenteNombre}</td>
+      <td><span class="badge badge-pink">${r.grado}</span></td>
+      <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.proyecto}</td>
+      <td style="font-size:12px">${r.fecha}</td>
+      <td><div class="btn-group">
+        <button class="btn btn-green btn-sm" onclick="cambiarEstado('${r.id}','aprobado');navigate('alertas')">✅</button>
+        <button class="btn btn-red btn-sm" onclick="cambiarEstado('${r.id}','rechazado');navigate('alertas')">❌</button>
+      </div></td>
+    </tr>`).join('')}
+    </table>
+  </div>`:''}`;
+}
+
+// ─── USUARIOS ─────────────────────────────────────────────────────────────────
+function renderUsuarios(c){
+  c.innerHTML=`
+  <div style="margin-bottom:14px"><button class="btn btn-pink" onclick="openModalUsuario()">+ Agregar Usuario</button></div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">👥 Usuarios (${DATA.usuarios.length})</span></div>
+    <table><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Tipo</th><th>Grados</th><th>Estado</th><th>Acciones</th></tr>
+    ${DATA.usuarios.map(u=>`<tr>
+      <td><b>${u.nombre}</b></td>
+      <td><span class="badge badge-blue">${u.usuario}</span></td>
+      <td><span class="badge ${u.rol==='presidente'?'badge-green':u.rol==='coordinadora'?'badge-pink':'badge-blue'}">${u.rol}</span></td>
+      <td><span class="badge ${u.tipo==='catedratico'?'badge-purple':'badge-gray'}">${u.tipo==='catedratico'?'Catedrático':'Titular'}</span></td>
+      <td style="font-size:10px">${u.grados.slice(0,3).map(g=>`<span class="badge badge-gray" style="margin:1px">${g}</span>`).join('')}${u.grados.length>3?`+${u.grados.length-3}`:''}</td>
+      <td><span class="badge ${u.activo?'badge-green':'badge-red'}">${u.activo?'Activo':'Inactivo'}</span></td>
+      <td><div class="btn-group">
+        <button class="btn btn-blue btn-sm" onclick="openModalUsuario('${u.id}')">✏️</button>
+        <button class="btn btn-${u.activo?'red':'green'} btn-sm" onclick="toggleUsuario('${u.id}')">${u.activo?'🔒':'🔓'}</button>
+        ${u.id!=='u1'?`<button class="btn btn-red btn-sm" onclick="deleteUsuario('${u.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+function openModalUsuario(id){
+  const u=id?DATA.usuarios.find(x=>x.id===id):{};
+  const html=`<div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">${id?'Editar':'Agregar'} Usuario</span><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>Nombre completo</label><input id="uNombre" value="${u.nombre||''}"/></div>
+      <div class="form-group"><label>Usuario de acceso</label><input id="uUsuario" value="${u.usuario||''}"/></div>
+      <div class="form-group"><label>Contraseña</label><input id="uPass" type="password" value="${u.pass||''}"/></div>
+      <div class="form-group"><label>Rol</label>
+        <select id="uRol">
+          <option value="docente" ${(u.rol||'docente')==='docente'?'selected':''}>Docente</option>
+          <option value="coordinadora" ${u.rol==='coordinadora'?'selected':''}>Coordinadora</option>
+          <option value="presidente" ${u.rol==='presidente'?'selected':''}>Presidente</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label>Tipo de docente</label>
+        <select id="uTipo">
+          <option value="fijo" ${(u.tipo||'fijo')==='fijo'?'selected':''}>Titular (grado fijo)</option>
+          <option value="catedratico" ${u.tipo==='catedratico'?'selected':''}>Catedrático (múltiples grados/flexible)</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label>Grados asignados</label>
+        <div class="chips" id="gradosChips">
+          ${DATA.grados.map(g=>`<div class="chip ${(u.grados||[]).includes(g)?'selected':''}" onclick="this.classList.toggle('selected')" data-g="${g}">${g}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+      <button class="btn btn-pink" onclick="saveUsuario('${id||''}')">Guardar</button>
+    </div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+function saveUsuario(id){
+  const n=document.getElementById('uNombre').value.trim();
+  const usu=document.getElementById('uUsuario').value.trim();
+  const pass=document.getElementById('uPass').value.trim();
+  if(!n||!usu||!pass){alert('Completa todos los campos');return;}
+  const grados=Array.from(document.querySelectorAll('#gradosChips .chip.selected')).map(el=>el.dataset.g);
+  const tipo=document.getElementById('uTipo').value;
+  if(id){
+    const u=DATA.usuarios.find(x=>x.id===id);
+    u.nombre=n;u.usuario=usu;u.pass=pass;u.rol=document.getElementById('uRol').value;u.grados=grados;u.tipo=tipo;
+  } else {
+    DATA.usuarios.push({id:'u'+Date.now(),nombre:n,usuario:usu,pass,rol:document.getElementById('uRol').value,grados,tipo,activo:true});
+  }
+  save();document.querySelector('.modal-overlay').remove();navigate('usuarios');
+}
+
+function toggleUsuario(id){const u=DATA.usuarios.find(x=>x.id===id);if(u){u.activo=!u.activo;save();navigate('usuarios');}}
+function deleteUsuario(id){if(!confirm('¿Eliminar este usuario?'))return;DATA.usuarios=DATA.usuarios.filter(u=>u.id!==id);save();navigate('usuarios');}
+
+// ─── GRADOS Y PERIODOS ────────────────────────────────────────────────────────
+function renderGrados(c){
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header"><span class="card-title">🏫 Grados</span><button class="btn btn-pink btn-sm" onclick="agregarGrado()">+ Agregar</button></div>
+    <div style="padding:14px;display:flex;flex-wrap:wrap;gap:8px">
+      ${DATA.grados.map(g=>`<span class="badge badge-pink" style="padding:6px 14px;font-size:13px">${g} <span onclick="eliminarGrado('${g}')" style="cursor:pointer;margin-left:6px">✕</span></span>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">📅 Periodos Académicos</span><button class="btn btn-pink btn-sm" onclick="openModalPeriodo()">+ Agregar</button></div>
+    <table><tr><th>Periodo</th><th>Inicio</th><th>Fin</th><th>Estado</th><th>Acciones</th></tr>
+    ${DATA.periodos.map(p=>`<tr>
+      <td><b>${p.nombre}</b></td><td>${p.inicio}</td><td>${p.fin}</td>
+      <td><span class="badge ${p.activo?'badge-green':'badge-gray'}">${p.activo?'Activo':'Inactivo'}</span></td>
+      <td><div class="btn-group">
+        <button class="btn btn-${p.activo?'red':'green'} btn-sm" onclick="togglePeriodo('${p.id}')">${p.activo?'Desactivar':'Activar'}</button>
+        <button class="btn btn-red btn-sm" onclick="deletePeriodo('${p.id}')">🗑️</button>
+      </div></td>
+    </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+function agregarGrado(){const g=prompt('Nombre del grado:');if(!g)return;DATA.grados.push(g.trim().toUpperCase());save();navigate('grados');}
+function eliminarGrado(g){if(!confirm(`¿Eliminar "${g}"?`))return;DATA.grados=DATA.grados.filter(x=>x!==g);save();navigate('grados');}
+function openModalPeriodo(){
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><span class="modal-title">Agregar Periodo</span><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>Nombre</label><input id="pNom" placeholder="Ej: Periodo 3"/></div>
+      <div class="form-group"><label>Fecha inicio</label><input type="date" id="pIni"/></div>
+      <div class="form-group"><label>Fecha fin</label><input type="date" id="pFin"/></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+      <button class="btn btn-pink" onclick="savePeriodo()">Guardar</button>
+    </div>
+  </div></div>`);
+}
+function savePeriodo(){
+  const n=document.getElementById('pNom').value.trim();
+  if(!n)return alert('Ingresa el nombre');
+  DATA.periodos.push({id:'p'+Date.now(),nombre:n,inicio:document.getElementById('pIni').value,fin:document.getElementById('pFin').value,activo:false});
+  save();document.querySelector('.modal-overlay').remove();navigate('grados');
+}
+function togglePeriodo(id){const p=DATA.periodos.find(x=>x.id===id);if(p){p.activo=!p.activo;save();navigate('grados');}}
+function deletePeriodo(id){if(!confirm('¿Eliminar?'))return;DATA.periodos=DATA.periodos.filter(p=>p.id!==id);save();navigate('grados');}
+
+// ─── REPORTES ─────────────────────────────────────────────────────────────────
+function renderReportes(c){
+  c.innerHTML=`<div class="card" style="padding:20px">
+    <div class="card-header" style="margin:-20px -20px 18px -20px;padding:12px 20px"><span class="card-title">📄 Generar Reportes</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      ${[
+        {ico:'📊',t:'Reporte Diario',d:'Registros del día',tipo:'diario',bg:'var(--pink3)',b:'#f8bbd0'},
+        {ico:'📅',t:'Reporte Semanal',d:'Resumen de la semana',tipo:'semanal',bg:'#E3F2FD',b:'#bbdefb'},
+        {ico:'🗓️',t:'Reporte Mensual',d:'Resumen del mes',tipo:'mensual',bg:'#E8F5E9',b:'#c8e6c9'},
+        {ico:'👩‍🏫',t:'Por Docente',d:'Cumplimiento individual',tipo:'docente',bg:'#FFF3E0',b:'#ffe0b2'},
+      ].map(r=>`<div style="background:${r.bg};border-radius:14px;padding:18px;border:1px solid ${r.b}">
+        <div style="font-size:26px;margin-bottom:8px">${r.ico}</div>
+        <div style="font-weight:700;font-size:14px;color:var(--blue);margin-bottom:4px">${r.t}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:12px">${r.d}</div>
+        <button class="btn btn-pink" onclick="generarReporte('${r.tipo}')">Generar</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function generarReporte(tipo){
+  const fecha=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const titles={diario:'REPORTE DIARIO',semanal:'REPORTE SEMANAL',mensual:'REPORTE MENSUAL',docente:'REPORTE POR DOCENTE'};
+  let regs=tipo==='diario'?DATA.registros.filter(r=>r.fecha===todayStr()):[...DATA.registros];
+  const docentes=DATA.usuarios.filter(u=>u.rol==='docente');
+  const sinReg=docentes.filter(u=>!DATA.registros.find(r=>r.fecha===todayStr()&&r.docenteId===u.id));
+
+  const contenido=`
+  <div style="background:#E91E8C;color:#fff;padding:16px;border-radius:10px;text-align:center;margin-bottom:16px">
+    <div style="font-size:16px;font-weight:700">FUNDACIÓN MIS HABILIDADES</div>
+    <div style="font-size:11px;opacity:0.9">Sistema de Gestión Académica — Ibagué, Tolima</div>
+  </div>
+  <div style="text-align:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:700;color:#1A237E">${titles[tipo]}</div>
+    <div style="font-size:11px;color:#888">Fecha: ${fecha} | Por: ${currentUser.nombre}</div>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="background:#FCE4EC;border-radius:10px;padding:8px 14px;text-align:center"><div style="font-size:18px;font-weight:700;color:#E91E8C">${regs.length}</div><div style="font-size:10px;color:#888">Registros</div></div>
+    <div style="background:#E8F5E9;border-radius:10px;padding:8px 14px;text-align:center"><div style="font-size:18px;font-weight:700;color:#2E7D32">${regs.filter(r=>r.estado==='aprobado').length}</div><div style="font-size:10px;color:#888">Aprobados</div></div>
+    <div style="background:#FFFDE7;border-radius:10px;padding:8px 14px;text-align:center"><div style="font-size:18px;font-weight:700;color:#F9A825">${regs.filter(r=>r.estado==='pendiente').length}</div><div style="font-size:10px;color:#888">Pendientes</div></div>
+    ${tipo==='diario'?`<div style="background:#FFEBEE;border-radius:10px;padding:8px 14px;text-align:center"><div style="font-size:18px;font-weight:700;color:#C62828">${sinReg.length}</div><div style="font-size:10px;color:#888">Sin registro</div></div>`:''}
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:#E91E8C;color:#fff">
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Fecha</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Docente</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Grado</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Proyecto</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Estándar</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px">Estado</th>
+    </tr></thead>
+    <tbody>
+    ${regs.map((r,i)=>`<tr style="background:${i%2===0?'#FCE4EC':'#fff'}">
+      <td style="padding:5px 10px;font-size:11px">${r.fecha}</td>
+      <td style="padding:5px 10px;font-size:11px">${r.docenteNombre}</td>
+      <td style="padding:5px 10px;font-size:11px">${r.grado}</td>
+      <td style="padding:5px 10px;font-size:11px">${r.proyecto}</td>
+      <td style="padding:5px 10px;font-size:11px">${r.estandar}</td>
+      <td style="padding:5px 10px;font-size:11px">${r.estado}</td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div style="margin-top:16px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px">
+    Fundación Mis Habilidades — Ibagué, Tolima | ${new Date().toLocaleString('es-CO')}
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal-overlay" id="repModal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <span class="modal-title">📄 ${titles[tipo]}</span>
+      <button class="modal-close" onclick="document.getElementById('repModal').remove()">✕</button>
+    </div>
+    <div id="repContenido">${contenido}</div>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="document.getElementById('repModal').remove()">Cerrar</button>
+      <button class="btn btn-pink" onclick="imprimirRep()">🖨️ Imprimir / PDF</button>
+    </div>
+  </div></div>`);
+}
+
+function imprimirRep(){
+  const contenido=document.getElementById('repContenido').innerHTML;
+  const w=window.open('','_blank','width=900,height=700');
+  if(w){w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Reporte FMH</title><style>*{font-family:'Segoe UI',sans-serif}body{padding:20px}</style></head><body>${contenido}</body></html>`);w.document.close();setTimeout(()=>w.print(),500);}
+}
+</script>
+</body>
+</html>
