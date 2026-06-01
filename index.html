@@ -164,16 +164,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function saveFirebase(){
-  try{await setDoc(doc(db,'fmh_academica','data'),JSON.parse(JSON.stringify(DATA)));}catch(e){console.log('FB save:',e);}
-}
-async function loadFirebase(){
-  try{const s=await getDoc(doc(db,'fmh_academica','data'));if(s.exists())window.DATA=s.data();}catch(e){console.log('FB load:',e);}
-}
+window._fbSave = async function(){
+  try{
+    const data = JSON.parse(JSON.stringify(window.DATA));
+    await setDoc(doc(db,'fmh_academica','data'), data);
+  } catch(e){ console.log('FB save error:',e); }
+};
 
-window._fbSave = saveFirebase;
+window._fbLoad = async function(){
+  try{
+    const s = await getDoc(doc(db,'fmh_academica','data'));
+    if(s.exists()) window.DATA = s.data();
+  } catch(e){ console.log('FB load error:',e); }
+};
 
-const DIAS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+// Cargar datos y luego iniciar la app
+window._fbLoad().then(()=>{
+  if(window._appReady) window._appReady();
+});
+</script>
 
 // ─── HORARIOS BASE ────────────────────────────────────────────────────────────
 const R=(ini,fin,tipo,l,ma,mi,j,v)=>({ini,fin,tipo,clases:{lunes:l,martes:ma,miercoles:mi,jueves:j,viernes:v}});
@@ -420,6 +429,15 @@ function save(){
   localStorage.setItem('fmh_acad2',JSON.stringify(DATA));
   if(window._fbSave) window._fbSave();
 }
+
+// Iniciar app (espera Firebase si está disponible)
+window._appReady = function(){
+  // App ya inicializada, refrescar si hay página activa
+  if(currentUser) navigate(currentPage);
+};
+
+// Si Firebase no carga en 3 segundos, iniciar igual
+setTimeout(()=>{ if(!window._fbLoadDone) window._appReady && window._appReady(); }, 3000);
 
 let currentUser=null, currentPage='dashboard';
 
