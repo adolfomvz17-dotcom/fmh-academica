@@ -152,16 +152,21 @@ tr:hover td{background:#fafafa}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA9PVOIOgPUH6n032V3k-I4RpibUBZBujw",
-  authDomain: "fmh-mishabilidades.firebaseapp.com",
-  projectId: "fmh-mishabilidades",
-  storageBucket: "fmh-mishabilidades.firebasestorage.app",
-  messagingSenderId: "124208084513",
-  appId: "1:124208084513:web:fff3ca5ff599ff4f48d560"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db = null;
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyA9PVOIOgPUH6n032V3k-I4RpibUBZBujw",
+    authDomain: "fmh-mishabilidades.firebaseapp.com",
+    projectId: "fmh-mishabilidades",
+    storageBucket: "fmh-mishabilidades.firebasestorage.app",
+    messagingSenderId: "124208084513",
+    appId: "1:124208084513:web:fff3ca5ff599ff4f48d560"
+  };
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch(e) { console.log('Firebase no disponible:', e); }
+
+const DIAS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
 
 // ─── HORARIOS BASE ────────────────────────────────────────────────────────────
 const R=(ini,fin,tipo,l,ma,mi,j,v)=>({ini,fin,tipo,clases:{lunes:l,martes:ma,miercoles:mi,jueves:j,viernes:v}});
@@ -405,15 +410,16 @@ let DATA = JSON.parse(localStorage.getItem('fmh_acad2')||'null') || {
   grados:['BABYLAND','TODDLERS','KINDER 3','KINDER 4','TRANSITION','FIRST','SECOND','THIRD','FOURTH','FIFTH'],
 };
 async function saveFirebase(){
-  try{
-    await db.collection('fmh_academica').doc('data').set(JSON.parse(JSON.stringify(DATA)));
-  }catch(e){console.log('FB save:',e);}
+  if(!db) return;
+  try{ await db.collection('fmh_academica').doc('data').set(JSON.parse(JSON.stringify(DATA))); }
+  catch(e){ console.log('FB save:',e); }
 }
 async function loadFirebase(){
+  if(!db) return;
   try{
     const s=await db.collection('fmh_academica').doc('data').get();
     if(s.exists) DATA=s.data();
-  }catch(e){console.log('FB load:',e);}
+  }catch(e){ console.log('FB load:',e); }
 }
 
 function save(){
@@ -513,6 +519,7 @@ function navigate(page){
   else if(page==='alertas') renderAlertas(c);
   else if(page==='grados') renderGrados(c);
   else if(page==='reportes') renderReportes(c);
+  else c.innerHTML=`<div class="alert alert-blue">🚧 Módulo en construcción</div>`;
 }
 
 const todayStr=()=>new Date().toISOString().slice(0,10);
