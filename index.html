@@ -477,13 +477,12 @@ function buildNav(){
   if(isAdmin()||isCoord()){
     items=[
       {section:'Principal'},{id:'dashboard',ico:'📊',label:'Dashboard'},{id:'alertas',ico:'🔔',label:'Alertas'},
-      {section:'Académico'},{id:'registros',ico:'📋',label:'Registros'},{id:'horarios',ico:'🕐',label:'Horarios'},
+      {section:'Académico'},{id:'registros',ico:'📋',label:'Registros'},{id:'horarios',ico:'🕐',label:'Horarios'},{id:'reportes',ico:'📄',label:'Reportes'},
     ];
     if(isAdmin()) items.push(
       {section:'Administración'},{id:'usuarios',ico:'👥',label:'Usuarios'},
-      {id:'grados',ico:'🏫',label:'Grados y Periodos'},{id:'reportes',ico:'📄',label:'Reportes'}
+      {id:'grados',ico:'🏫',label:'Grados y Periodos'}
     );
-    else items.push({id:'reportes',ico:'📄',label:'Reportes'});
   } else {
     items=[
       {id:'dashboard',ico:'📊',label:'Mi Dashboard'},
@@ -899,7 +898,7 @@ function verRegistro(id){
 // ─── HORARIOS ─────────────────────────────────────────────────────────────────
 function renderHorarios(c){
   const cat=esCatedratico()?currentUser.catKey:null;
-  const misGrados=isDocente()?currentUser.grados:DATA.grados;
+  const misGrados=isDocente()&&!isAdminOrCoord()?currentUser.grados:DATA.grados;
   const gradoSel=window._horGrado||(cat?'__cat__':misGrados[0]||'FIRST');
   const dias=['lunes','martes','miercoles','jueves','viernes'];
   const diaActual=todayDia();
