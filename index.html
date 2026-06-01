@@ -148,10 +148,10 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyA9PVOIOgPUH6n032V3k-I4RpibUBZBujw",
   authDomain: "fmh-mishabilidades.firebaseapp.com",
@@ -160,29 +160,8 @@ const firebaseConfig = {
   messagingSenderId: "124208084513",
   appId: "1:124208084513:web:fff3ca5ff599ff4f48d560"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window._fbSave = async function(){
-  try{
-    const data = JSON.parse(JSON.stringify(window.DATA));
-    await setDoc(doc(db,'fmh_academica','data'), data);
-  } catch(e){ console.log('FB save error:',e); }
-};
-
-window._fbLoad = async function(){
-  try{
-    const s = await getDoc(doc(db,'fmh_academica','data'));
-    if(s.exists()) window.DATA = s.data();
-  } catch(e){ console.log('FB load error:',e); }
-};
-
-// Cargar datos y luego iniciar la app
-window._fbLoad().then(()=>{
-  if(window._appReady) window._appReady();
-});
-</script>
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 // ─── HORARIOS BASE ────────────────────────────────────────────────────────────
 const R=(ini,fin,tipo,l,ma,mi,j,v)=>({ini,fin,tipo,clases:{lunes:l,martes:ma,miercoles:mi,jueves:j,viernes:v}});
@@ -425,19 +404,32 @@ let DATA = JSON.parse(localStorage.getItem('fmh_acad2')||'null') || {
   ],
   grados:['BABYLAND','TODDLERS','KINDER 3','KINDER 4','TRANSITION','FIRST','SECOND','THIRD','FOURTH','FIFTH'],
 };
-function save(){
-  localStorage.setItem('fmh_acad2',JSON.stringify(DATA));
-  if(window._fbSave) window._fbSave();
+async function saveFirebase(){
+  try{
+    await db.collection('fmh_academica').doc('data').set(JSON.parse(JSON.stringify(DATA)));
+  }catch(e){console.log('FB save:',e);}
+}
+async function loadFirebase(){
+  try{
+    const s=await db.collection('fmh_academica').doc('data').get();
+    if(s.exists) DATA=s.data();
+  }catch(e){console.log('FB load:',e);}
 }
 
-// Iniciar app (espera Firebase si está disponible)
-window._appReady = function(){
-  // App ya inicializada, refrescar si hay página activa
-  if(currentUser) navigate(currentPage);
-};
+function save(){
+  localStorage.setItem('fmh_acad2',JSON.stringify(DATA));
+  saveFirebase();
+}
 
-// Si Firebase no carga en 3 segundos, iniciar igual
-setTimeout(()=>{ if(!window._fbLoadDone) window._appReady && window._appReady(); }, 3000);
+// Iniciar app después de cargar Firebase
+loadFirebase().then(()=>{ 
+  console.log('Firebase cargado');
+}).catch(()=>{
+  console.log('Usando datos locales');
+});
+
+// Eliminar timeout y appReady anteriores
+window._appReady = null;
 
 let currentUser=null, currentPage='dashboard';
 
